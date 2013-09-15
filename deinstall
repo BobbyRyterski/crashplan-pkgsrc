@@ -1,0 +1,31 @@
+PKGNAME="$1"
+STAGE="$2"
+
+TARGETDIR=$PKG_PREFIX/crashplan
+
+function stop
+{
+  # stop running instance via SMF or kill
+  echo "stop service here"
+}
+
+function deinstall
+{
+  # remove SMF
+  # svccfg something
+  # remove link for identity file
+  rm /var/lib/crashplan
+  # CrashPlan stores data in the install directory pkgsrc won't know about
+  rm -rf $TARGETDIR
+}
+
+case $STAGE in
+VIEW-DEINSTALL)
+  ;;
+DEINSTALL)
+  stop
+  ;;
+POST-DEINSTALL)
+  deinstall
+  ;;
+esac

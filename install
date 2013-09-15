@@ -1,0 +1,50 @@
+PKGNAME="$1"
+STAGE="$2"
+
+TARGETDIR=$PKG_PREFIX/crashplan
+ENGINE_SCRIPT=$TARGETDIR/bin/CrashPlanEngine
+DESKTOP_SCRIPT=$TARGETDIR/bin/CrashPlanEngine
+SERVICE_XML=$TARGETDIR/bin/crashplan.xml
+LOG_DIR=$TARGETDIR/log
+MANIFESTDIR=$TARGETDIR/var
+BINSDIR=$PKG_PREFIX/bin
+IDENTITYDIR=$TARGETDIR/identity
+
+function install
+{
+  (
+  cat <<EOF
+TARGETDIR=$TARGETDIR
+BINSDIR=$BINSDIR
+MANIFESTDIR=$MANIFESTDIR
+JAVACOMMON=$(which java)
+INSTALLDATE=$(date +%Y%m%d)
+APP_BASENAME=CrashPlan
+EOF
+  ) > $TARGETDIR/install.vars
+
+  # update SMF XML with engine script path
+  sed "s|.*/opt/sfw/crashplan/bin.*start.*|                exec=\'$ENGINE_SCRIPT start\'|" $SERVICE_XML > $SERVICE_XML.new && mv $SERVICE_XML.new $SERVICE_XML
+  sed "s|.*/opt/sfw/crashplan/bin.*stop.*|                exec=\'$ENGINE_SCRIPT stop\'|" $SERVICE_XML > $SERVICE_XML.new && mv $SERVICE_XML.new $SERVICE_XML
+
+  # update config XML with manifest path
+  sed "s|<manifestPath>manifest</manifestPath>|<manifestPath>$MANIFESTDIR</manifestPath>|g" $TARGETDIR/conf/default.service.xml > $TARGETDIR/conf/default.service.xml.new && mv $TARGETDIR/conf/default.service.xml.new $TARGETDIR/conf/default.service.xml
+
+  mkdir $LOG_DIR
+  chmod 777 $LOG_DIR
+  mkdir $MANIFESTDIR
+  mkdir $IDENTITYDIR
+  chown -R root:staff $TARGETDIR
+
+  mkdir -p /var/lib
+  ln -s $IDENTITYDIR /var/lib/crashplan
+}
+
+case $STAGE in
+PRE-INSTALL)
+  ;;
+POST-INSTALL)
+  install
+  ;;
+esac
+
