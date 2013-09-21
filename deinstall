@@ -2,6 +2,7 @@ PKGNAME="$1"
 STAGE="$2"
 
 TARGETDIR=$PKG_PREFIX/crashplan
+IDENTITYDIR=/var/lib/crashplan
 
 function stop
 {
@@ -13,8 +14,8 @@ function deinstall
 {
   # remove SMF
   # svccfg something
-  # remove link for identity file
-  rm /var/lib/crashplan
+  # remove identity dir
+  rm -r $IDENTITYDIR
   # CrashPlan stores data in the install directory pkgsrc won't know about
   rm -rf $TARGETDIR
 }

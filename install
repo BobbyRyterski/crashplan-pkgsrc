@@ -8,7 +8,7 @@ SERVICE_XML=$TARGETDIR/bin/crashplan.xml
 LOG_DIR=$TARGETDIR/log
 MANIFESTDIR=$TARGETDIR/var
 BINSDIR=$PKG_PREFIX/bin
-IDENTITYDIR=$TARGETDIR/identity
+IDENTITYDIR=/var/lib/crashplan
 
 function install
 {
@@ -33,11 +33,8 @@ EOF
   mkdir $LOG_DIR
   chmod 777 $LOG_DIR
   mkdir $MANIFESTDIR
-  mkdir $IDENTITYDIR
   chown -R root:staff $TARGETDIR
-
-  mkdir -p /var/lib
-  ln -s $IDENTITYDIR /var/lib/crashplan
+  mkdir -p $IDENTITYDIR
 }
 
 case $STAGE in
